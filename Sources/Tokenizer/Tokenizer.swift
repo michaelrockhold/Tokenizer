@@ -1,15 +1,5 @@
 import Foundation
 
-//struct Token<V> {
-//    var text: String
-//    var value: V
-//
-//    init(_ text: String, value: V) {
-//        self.text = text
-//        self.value = value
-//    }
-//}
-
 private let MAX_TOKEN_LEN = 80
 
 class Tokenizer<Token> {
