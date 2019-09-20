@@ -1,32 +1,32 @@
 import Foundation
 
-struct Token<V> {
-    var text: String
-    var value: V
-    
-    init(_ text: String, value: V) {
-        self.text = text
-        self.value = value
-    }
-}
+//struct Token<V> {
+//    var text: String
+//    var value: V
+//
+//    init(_ text: String, value: V) {
+//        self.text = text
+//        self.value = value
+//    }
+//}
 
 private let MAX_TOKEN_LEN = 80
 
-class Tokenizer<V> {
+class Tokenizer<Token> {
     
     public enum TokenizationError: Error {
         case UnrecognizedInputError(String)
     }
     
-    typealias Action = (String)->Token<V>
+    typealias Action = (String)->Token
     typealias RuleInitializer = (String, Action?)
     
-    private struct Rule<V> {
+    private struct Rule<Token> {
         let regex: NSRegularExpression
         let action: Action?
     }
 
-    private let rules: [Rule<V>]
+    private let rules: [Rule<Token>]
     private let inputStream: InputStream
     private var inputBuffer: [UInt8]!
     private var inputBufferContentsSize: Int = 0
@@ -60,7 +60,7 @@ class Tokenizer<V> {
         inputStream.close()
     }
 
-    func next() throws -> Token<V>? {
+    func next() throws -> Token? {
         
         if inputBufferContentsSize == 0 { // Have we consumed the entire input stream?
             return nil // if so, returning nil indicates normal end-of-stream

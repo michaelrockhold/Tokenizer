@@ -3,22 +3,22 @@ import XCTest
 
 final class TokenizerTests: XCTestCase {
     
-    enum Value : Equatable {
-        case name
+    enum TestToken : Equatable {
+        case name(String)
         case plus
         case divide
         case integer(Int)
         case float(Float)
     }
     
-    func makeTokenizer(stream: InputStream) -> Tokenizer<Value>? {
+    func makeTokenizer(stream: InputStream) -> Tokenizer<TestToken>? {
         do {
-            if let t = try Tokenizer<Value>(rules: [
-                ("[abcdef]+",                                   { text in Token(text, value: .name) }),
-                ("\\+",                                         { text in Token(text, value: .plus) }),
-                ("/",                                           { text in Token(text, value: .divide) }),
-                ("[0123456789][0123456789]*",                   { text in Token(text, value: .integer(Int(text)!)) }),
-                ("[0123456789][0123456789]*\\.[0123456789]+",   { text in Token(text, value: .float(Float(text)!)) }),
+            if let t = try Tokenizer<TestToken>(rules: [
+                ("[abcdef]+",                                   { text in .name(text) }),
+                ("\\+",                                         { text in .plus }),
+                ("/",                                           { text in .divide }),
+                ("[0123456789][0123456789]*",                   { text in .integer(Int(text)!) }),
+                ("[0123456789][0123456789]*\\.[0123456789]+",   { text in .float(Float(text)!) }),
                 ("[ \t\n]+",                                    nil),
             ],
                                             inputStream: stream) {
@@ -39,7 +39,7 @@ final class TokenizerTests: XCTestCase {
             return
         }
         
-        var tokens = [Token<Value>]()
+        var tokens = [TestToken]()
         do {
             if let token = try t.next() { tokens.append(token) }
             if let token = try t.next() { tokens.append(token) }
@@ -54,11 +54,8 @@ final class TokenizerTests: XCTestCase {
         }
 
         XCTAssertEqual(tokens.count, 5)
-        XCTAssertEqual(tokens[0].text, "abc")
-        XCTAssertEqual(tokens[0].value, .name)
-        
-        XCTAssertEqual(tokens[4].text, "12.2")
-        XCTAssertEqual(tokens[4].value, .float(12.2))
+        XCTAssertEqual(tokens[0], .name("abc"))
+        XCTAssertEqual(tokens[4], .float(12.2))
     }
 
     func simpleTokenCountTester(input: String, expectedTokenCount: Int) {
@@ -66,7 +63,7 @@ final class TokenizerTests: XCTestCase {
             return
         }
 
-        var tokens = [Token<Value>]()
+        var tokens = [TestToken]()
         do {
             while let token = try t.next() {
                 tokens.append(token)
